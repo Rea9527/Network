@@ -2,11 +2,14 @@ import networkx as nx
 import numpy as np
 
 
+# 保证边betweenness字典里的边（tuple）都是（小号结点，大号结点）
 def asc(edge):
     return (edge[edge[0] > edge[1]], edge[edge[0] < edge[1]])
 
 
 class Community:
+
+    # 生存随机图（n_node,prob)或者读文件graph_dir
     def __init__(self, n_node=0, prob=0.0, graph_dir=None):
         self.graph = nx.Graph()
 
@@ -19,6 +22,7 @@ class Community:
         self.n_edge = len(self.graph.edges())
         self.betweenness_list = {}
 
+    # 读图文件
     def read_graph(self, graph_dir):
         edges = []
         with open(graph_dir, 'r') as graph_file:
@@ -30,6 +34,7 @@ class Community:
         print("G's {} nodes:\n".format(len(self.graph.nodes())), self.graph.nodes())
         print("G's {} edges:\n".format(len(self.graph.edges())), self.graph.edges())
 
+    # 计算sp_betweenness
     def __calcul_betw_sp(self):
 
         for start in self.graph.nodes():
@@ -91,12 +96,15 @@ class Community:
             for edge in self.graph.edges():
                 self.betweenness_list[asc(edge)] += betweenness_tmp[asc(edge)]
 
+    # 计算resistor betweenness
     def __calcul_betw_rs(self):
         pass
 
+    # 计算random_walk betweenness
     def __calcul_betw_rw(self):
         pass
 
+    # 计算betweenness，选择计算模式mode
     def calcul_betw(self, mode=0):
         self.betweenness_list = {}
         for i in self.graph.edges():
