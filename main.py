@@ -120,7 +120,21 @@ class Community:
 
     # 计算random_walk betweenness
     def __calcul_betw_rw(self):
-        pass
+        Lap = nx.laplacian_matrix(self.graph).toarray()
+        for source in self.graph.nodes():
+            for terminate in self.graph.nodes():
+                if terminate == source:
+                    continue
+                Lapv = np.delete(Lap, terminate - 1, 0)
+                Lapv = np.delete(Lapv, terminate - 1, 1)
+                S = np.zeros((1, self.n_node))
+                S[0][source - 1] = 1
+                Sv = np.delete(S, terminate - 1, 1).T
+                Vv = np.matmul(np.linalg.inv(Lapv), Sv)
+                Vr = np.array([0])
+                V = np.insert(Vv, terminate - 1, values=Vr, axis=0)
+                for edge in self.graph.edges():
+                    self.betweenness_list[asc(edge)] += abs(V[edge[0] - 1][0] - V[edge[1] - 1][0])
 
     # 计算betweenness，选择计算模式mode
     def calcul_betw(self, mode=0):
@@ -145,5 +159,5 @@ class Community:
 
 
 a = Community(graph_dir='graph.txt')
-a.calcul_betw(mode=0)
+a.calcul_betw(mode=2)
 print(a.betweenness_list)
