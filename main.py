@@ -1,5 +1,6 @@
 import networkx as nx
 import numpy as np
+import operator
 
 
 # 保证边betweenness字典里的边（tuple）都是（小号结点，大号结点）
@@ -151,8 +152,16 @@ class Community:
         else:
             print("invalid mode!\nonly 3 modes: shortest-path: 0(default),resistor-network: 1,random-walk: 2")
 
-    def cut_edge(self):
-        pass
+    # find edge with the highest score and remove it from the network
+    def cut_edge(self, mode=0):
+        originEdgeNum = len(self.graph.edges)
+        print(originEdgeNum)
+        print(self.graph.edges)
+        
+        while(len(self.graph.edges) > originEdgeNum*2.0/3.0):
+            index = max(self.betweenness_list.items(), key=operator.itemgetter(1))[0]
+            del self.graph.edges[index]
+        
 
     def evaluation(self):
         pass
@@ -161,3 +170,4 @@ class Community:
 a = Community(graph_dir='graph.txt')
 a.calcul_betw(mode=2)
 print(a.betweenness_list)
+a.cut_edge(mode=2)
