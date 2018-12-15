@@ -98,7 +98,25 @@ class Community:
 
     # 计算resistor betweenness
     def __calcul_betw_rs(self):
-        pass
+        Lap = nx.laplacian_matrix(self.graph).toarray()
+        for source in self.graph.nodes():
+            for sink in self.graph.nodes():
+                if sink == source:
+                    continue
+                reference = 1
+                while reference == source or reference == sink:
+                    reference += 1
+                Lapv = np.delete(Lap, reference - 1, 0)
+                Lapv = np.delete(Lapv, reference - 1, 1)
+                S = np.zeros((1, self.n_node))
+                S[0][source - 1] = 1
+                S[0][sink - 1] = -1
+                Sv = np.delete(S, reference - 1, 1).T
+                Vv = np.matmul(np.linalg.inv(Lapv), Sv)
+                Vr = np.array([0])
+                V = np.insert(Vv, reference - 1, values=Vr, axis=0)
+                for edge in self.graph.edges():
+                    self.betweenness_list[asc(edge)] += abs(V[edge[0] - 1][0] - V[edge[1] - 1][0])
 
     # 计算random_walk betweenness
     def __calcul_betw_rw(self):
@@ -127,5 +145,5 @@ class Community:
 
 
 a = Community(graph_dir='graph.txt')
-a.calcul_betw()
+a.calcul_betw(mode=0)
 print(a.betweenness_list)
