@@ -1,6 +1,7 @@
 import networkx as nx
 import numpy as np
 import operator
+import community
 
 
 # 保证边betweenness字典里的边（tuple）都是（小号结点，大号结点）
@@ -155,19 +156,28 @@ class Community:
     # find edge with the highest score and remove it from the network
     def cut_edge(self, mode=0):
         originEdgeNum = len(self.graph.edges)
-        print(originEdgeNum)
-        print(self.graph.edges)
         
         while(len(self.graph.edges) > originEdgeNum*2.0/3.0):
             index = max(self.betweenness_list.items(), key=operator.itemgetter(1))[0]
-            del self.graph.edges[index]
+            self.graph.remove_edge(index[0], index[1])
+            del self.betweenness_list[index]
+            print(index)
+            print(self.graph.edges)
+            self.calcul_betw(mode=mode)
         
 
     def evaluation(self):
-        pass
+        part = community.best_partition(self.graph)
+        mod = community.modularity(part, self.graph)
+
+        # matrix of nodes connecting to each community
+        mat = [[part.get(node) for node in self.graph.nodes()] for node in self.graph.nodes()]
+        Q = np.trace(mat) - np.sum(np.matmul(mat, mat), axis=1)
+
+        print("The modularity measure of the network is: ", Q)
 
 
 a = Community(graph_dir='graph.txt')
 a.calcul_betw(mode=2)
 print(a.betweenness_list)
-a.cut_edge(mode=2)
+a.evaluation()
